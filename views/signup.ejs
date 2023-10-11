@@ -1,0 +1,159 @@
+<%- include('partials/header'); -%>
+<div class="container-sign">
+  <div class="sign-box">
+    <h1>Sign up</h1>
+    <form>
+      <div class="box">
+        <div class="user-box">
+          <div class="last-name">
+            <input type="text" id="lastName" name="lastName" />
+            <label for="lastName" class="name">Last Name</label>
+            <div class="last-Name error"></div>
+          </div>
+        </div>
+        <div class="user-box">
+          <div class="first-name">
+            <input type="text" id="firstName" name="firstName" />
+            <label for="firstName">First Name</label>
+            <div class="first-Name error"></div>
+          </div>
+        </div>
+      </div>
+      <div class="user-box">
+        <input type="email" id="email" name="email" />
+        <label for="email">Email</label>
+      </div>
+      <div class="email error"></div>
+      <div class="user-box">
+        <div class="phone">
+          <input
+            type="tel"
+            value="+998 ( )"
+            name="phoneNumber"
+            id="phoneNumber"
+          />
+          <label for="phoneNumber">Phone Number</label>
+          <div class="phone error"></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="user-box">
+          <div class="passwordShow">
+            <input type="password" id="password" name="password" />
+            <label for="password">Password </label>
+          </div>
+        </div>
+        <div class="user-box">
+          <input type="password" id="con-password" name="confirmPassword" />
+          <label for="con-password">Confirm password</label>
+        </div>
+      </div>
+      <div class="password error"></div>
+      <div class="show">
+        <input type="checkbox" id="switch" onclick="{showPassword()}" />
+        <label for="switch" class="a">Toggle</label>
+        <p>Show password</p>
+      </div>
+      <div class="accept">
+        <input type="checkbox" id="agree" name="agree" />
+        <label for="agree"
+          >I accept the <a href="./accept">Terms & Conditions</a></label
+        >
+        <div class="agree error"></div>
+      </div>
+      <button type="submit" class="btn-sign">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        Sign up
+      </button>
+
+      <div class="login">
+        <p>Already have an account? <a href="./login">Login</a></p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.querySelector("form");
+  const email = document.querySelector("#email");
+  const password = document.querySelector("#password");
+  const firstName = document.querySelector("#firstName");
+  const lastName = document.querySelector("#lastName");
+  const phoneNumber = document.querySelector("#phoneNumber");
+  const agree = document.querySelector("#agree");
+  const password1 = document.querySelector("#con-password");
+  const emailError = document.querySelector(".email.error");
+  const passwordError = document.querySelector(".password.error");
+  const lastNameError = document.querySelector(".last-Name.error");
+  const firstNameError = document.querySelector(".first-Name.error");
+  const agreeError = document.querySelector(".agree.error");
+  const phoneError = document.querySelector(".phone.error");
+
+  function showPassword() {
+    if (password.type === "text" && password1.type === "text") {
+      password.type = "password";
+      password1.type = "password";
+    } else {
+      password.type = "text";
+      password1.type = "text";
+    }
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    emailError.textContent = "";
+    passwordError.textContent = "";
+    firstNameError.textContent = "";
+    lastNameError.textContent = "";
+    agreeError.textContent = "";
+    phoneError.textContent = "";
+
+    if (form.password.value !== form.confirmPassword.value) {
+      passwordError.textContent = "Please enter same your password";
+    } else {
+      const email = form.email.value;
+      const password = form.password.value;
+      const firstName = form.firstName.value;
+      const lastName = form.lastName.value;
+      const agree = form.agree.value;
+      const phoneNumber = form.phoneNumber.value;
+
+      try {
+        const res = await fetch("/signup/", {
+          method: "POST",
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            phoneNumber,
+            email,
+            password,
+            agree,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        console.log(data);
+
+        if (data.errors) {
+          emailError.textContent = data.errors.email;
+          passwordError.textContent = data.errors.password;
+          lastNameError.textContent = data.errors.lastName;
+          firstNameError.textContent = data.errors.firstName;
+          agreeError.textContent = data.errors.agree;
+          phoneError.textContent = data.errors.phoneNumber;
+        }
+        if (data.user) {
+          location.assign("/");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  });
+</script>
+
+<%- include('partials/footer'); -%>
